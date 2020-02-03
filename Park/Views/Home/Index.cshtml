@@ -1,0 +1,72 @@
+﻿<table id="tb1" class="table table-bordered table-striped text-capitalize" style="margin-top: 30px">
+	<thead>
+	<tr><td class="modal-header" colspan="4">停车场信息列表</td></tr>
+	<tr>
+		<td><strong>编号</strong></td>
+		<td><strong>区域</strong></td>
+		<td><strong>状态</strong></td>
+		<td><strong>操作</strong></td>
+	</tr>
+	</thead>
+	<tbody>
+	</tbody>
+</table>
+
+<div id="mymodal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title"></h4>
+			</div>
+			<div class="modal-body">
+				<table id="table-2" class="table table-bordered table-striped" style="margin-top:30px">
+					<thead>
+					<tr>
+						<td>车牌号</td>
+						<td>停车时间</td>
+						<td>开出时间</td>
+					</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="close" data-dismiss="modal" aria-label="确认"><span aria-hidden="true"></span></button>
+			</div>
+		</div>
+	</div>
+</div>
+@section scripts
+{
+	<script>
+		$(function() {
+			$.get("http://localhost:50466/api/default/GetParkingLots",
+				function(res) {
+					$.each(res, function(key,value) {
+						$("#tb1 tbody").append(
+							$("<tr>").append(
+								$("<td>").text(value.PLID)).append(
+								$("<td>").text(value.Position)).append(
+								$("<td>").text(value.State == 1 ? '空位' : value.State == 2 ? '预留位' : value.State == 3 ? '已停车' : '维修')).append(
+								$("<td>").append(
+									$("<a class='btn btn-primary btn-lg' data-toggle='modal' data-target='#mymodal'>详情</a>")).click(function () {
+									$.get("http://localhost:50466/api/default/GetCardRecordsById?plid=" + value.PLID,
+										function(res1) {
+											$(".modal-title").text(value.Position + "停车记录");
+											$.each(res1,
+												function(key, value) {
+													$("#table-2 tbody").append(
+														$("<tr>").append(
+															$("<td>").text(value.CardID)).append(
+															$("<td>").text(value.StartTime)).append(
+															$("<td>").text(value.EndTime)));
+												});
+										});
+								})));
+					});
+				});
+		})
+
+	</script>
+}
